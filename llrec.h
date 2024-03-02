@@ -83,7 +83,22 @@ Node* llfilter(Node* head, Comp pred)
     //*********************************************
     // Provide your implementation below
     //*********************************************
-
+    // Base case: If the list is empty, return NULL.
+    if (head == NULL) {
+        return NULL;
+    }
+    
+    // Check the current node with the predicate.
+    if (pred(head->val)) {
+        // If the predicate returns true, remove this node.
+        Node* nextNode = head->next; // Save the next node.
+        delete head; // Deallocate the current node.
+        return llfilter(nextNode, pred); // Continue with the rest of the list.
+    } else {
+        // If the node should not be removed, link it to the result of filtering the rest of the list.
+        head->next = llfilter(head->next, pred);
+        return head; // Return the current node as it's part of the filtered list.
+    }
 
 }
 

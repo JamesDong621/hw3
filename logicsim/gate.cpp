@@ -88,3 +88,53 @@ Event* Or2Gate::update(uint64_t current_time)
 	}
   return e;
 }
+
+
+NotGate::NotGate(Wire* input, Wire* output) : Gate(1, output) {
+    wireInput(0, input); // Assign the single input wire to the gate.
+}
+
+Event* NotGate::update(uint64_t current_time) {
+    char state = '0'; // Get the current state of the input wire.
+    char newState; // Determine the new state based on the NOT operation.
+	for(auto w : m_inputs)
+	{
+		char in = w->getState();
+		if(in == '1')
+		{
+			state = '1';
+			break;
+		}
+		else if(in == '0')
+		{
+			state = '0';
+			break;
+		}
+		else if(in == 'X')
+		{
+			state = 'X';
+			break;
+		}
+	}
+    // Perform the NOT operation unless the input state is undefined ('X').
+    switch (state) {
+        case '0':
+            newState = '1'; // NOT 0 = 1
+            break;
+        case '1':
+            newState = '0'; // NOT 1 = 0
+            break;
+        default:
+            newState = 'X'; // Undefined input leads to undefined output.
+            break;
+    }
+
+    // Only generate a new event if the state of the output wire needs to change.
+    if (newState != m_current_state) {
+        m_current_state = newState; // Update the current state of the gate.
+        uint64_t nextTime = current_time + m_delay; // Calculate the time for the event based on the gate delay.
+        return new Event{nextTime, m_output, newState}; // Create and return the new event.
+    }
+
+    return nullptr; // If no state change is needed, return nullptr.
+}
